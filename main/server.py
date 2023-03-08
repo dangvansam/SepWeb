@@ -181,6 +181,9 @@ def index():
         return render_template("index.html")
     else:
         print("post")
+        
+        print(request.body)
+
         if len(request.files) == 2:
             file1 = request.files["file1"]
             file2 = request.files["file2"]
@@ -205,6 +208,8 @@ def index():
         elif len(request.files) == 1:
             if request.files["file3"]:
                 file3 = request.files["file3"]
+            elif request.files["file"]:
+                file3 = request.files["file"]
             else:
                 file3 = request.files["file4"]
             file3_name = file3.filename

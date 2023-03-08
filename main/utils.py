@@ -6,7 +6,7 @@ import speechbrain as sb
 from hyperpyyaml import load_hyperpyyaml
 from train import Separation
 import torchaudio
-torchaudio.set_audio_backend("sox_io")
+torchaudio.set_audio_backend("soundfile")
 import os
 import numpy as np
 from speechbrain.dataio.dataio import read_audio
