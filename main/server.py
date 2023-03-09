@@ -40,7 +40,6 @@ def convert_to_wav(
     os.system(cmd)
 
 
-
 def split_audio(
         wav_input_path: str,
         segment_time: float,
@@ -181,9 +180,6 @@ def index():
         return render_template("index.html")
     else:
         print("post")
-        
-        print(request.body)
-
         if len(request.files) == 2:
             file1 = request.files["file1"]
             file2 = request.files["file2"]
@@ -194,7 +190,7 @@ def index():
             mix = utils.prepare_mixed(file1_wav_path_nor, file2_wav_path_nor)
 
             mix_name = file1_name + '_' + file2_name
-            mixed_filepath = os.path.join(dns_home,'static/upload', '{}_{}.wav'.format(mix_name, current_time))
+            mixed_filepath = os.path.join('static/upload', '{}_{}.wav'.format(mix_name, current_time))
             mix = torch.tensor(mix)
             mix.to('cpu')
             torchaudio.save(mixed_filepath, mix.unsqueeze(0), sample_rate= 16000)
@@ -204,26 +200,32 @@ def index():
 
             return render_template( "index.html", **data)
 
-
         elif len(request.files) == 1:
-            if request.files["file3"]:
-                file3 = request.files["file3"]
-            elif request.files["file"]:
+            print(request.files)
+            if request.files.get("file"):
                 file3 = request.files["file"]
-            else:
+            elif request.files.get("file3"):
+                file3 = request.files["file3"]
+            elif request.files.get("file4"):
                 file3 = request.files["file4"]
+            else:
+                print("file not found on request body!")
             file3_name = file3.filename
-            save_path = os.path.join(dns_home,'static/upload') + file3_name
+            print(file3)
+            save_path = os.path.join(dns_home, 'static/upload', file3_name)
             file3.save(save_path)
             task_id = hash_string(file3_name)
             task_id = "{}_{}".format(task_id, current_time)
-
-            t = Thread(target= separation_long_audio, args=(task_id, dns_home, save_path, current_time, ))
+            print(f"{save_path} is exists:", os.path.exists(save_path))
+            t = Thread(target=separation_long_audio, args=(task_id, dns_home, save_path, current_time, ))
             t.start()
 
             output = {
                 "task_id": task_id,
-                "status": 200
+                "status": 200,
+                "results": {
+                    "mixed_filepath": save_path,
+                }
             }
 
             return jsonify(output)
@@ -236,4 +238,4 @@ if __name__ == "__main__":
     host = '0.0.0.0'
     # model = utils._load_model()
     print("load model done!")
-    app.run(debug=True, port = port, host=host)
+    app.run(debug=True, port = port, host=host, ssl_context="adhoc")

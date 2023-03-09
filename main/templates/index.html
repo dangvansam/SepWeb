@@ -74,7 +74,7 @@
             </div>
             
             <!-- Record & Process 1 file -->
-            <div class="tab-pane fade active show" id="record" role="tabpanel" aria-labelledby="record-tab">
+            <div class="tab-pane fade" id="record" role="tabpanel" aria-labelledby="record-tab">
                     <p>
                     <h5>Record mixed file</h5>
                     <hr style="width:50%";>
@@ -126,7 +126,6 @@
                                             navigator.mediaDevices.msGetUserMedia;
     }
     else{
-        alert("No microphone found!")
     }
 
     navigator.mediaDevices.getUserMedia({audio:true}).then(stream => {handlerFunction(stream)})
@@ -146,7 +145,7 @@
         console.log("send to server")
         var form = new FormData();
         form.append('file', data, 'data.wav');
-        form.append('title', 'data.wav');
+        form.append('file', 'data.wav');
         //Chrome inspector shows that the post data includes a file and a title.
         $.ajax({
             type: 'POST',
@@ -155,8 +154,9 @@
             cache: false,
             processData: false,
             contentType: false
-        }).done(function(data) {
-            console.log(data);
+        }).done(function(rp) {
+            console.log(rp);
+            $("#audio_recorded").attr('src', rp['results']["mixed_filepath"])
         });
     }
 
@@ -165,14 +165,14 @@
         startRecording.disabled = true;
         stopRecording.disabled = false;
         audioChunks = [];
-        //rec.start();
+        rec.start();
     };
 
     stopRecording.onclick = e => {
         console.log("Recording are stopped.");
         startRecording.disabled = false;
         stopRecording.disabled = true;
-        //rec.stop();
+        rec.stop();
     };
 </script>
 
